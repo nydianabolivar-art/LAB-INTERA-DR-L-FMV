@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dominio, Rango y Límites | Funciones Multivariadas</title>
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.0/math.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0B1220;
+  --panel:#121B2E;
+  --panel-2:#16223A;
+  --panel-3:#1C2A45;
+  --border:#243456;
+  --text:#E8ECF3;
+  --muted:#8493AD;
+  --cyan:#22D3C0;
+  --amber:#F5A623;
+  --violet:#8B5CF6;
+  --coral:#F0537A;
+  --font-display:'Space Grotesk',sans-serif;
+  --font-body:'Inter',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    radial-gradient(circle at 15% 10%, rgba(139,92,246,0.10), transparent 40%),
+    radial-gradient(circle at 85% 0%, rgba(34,211,192,0.08), transparent 45%),
+    repeating-radial-gradient(circle at 50% 120%, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 2px, transparent 34px),
+    var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  min-height:100vh;
+}
+::selection{background:var(--violet);color:#fff;}
+.wrap{max-width:1280px;margin:0 auto;padding:28px 22px 80px;}
+
+/* HEADER */
+header.top{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:26px;padding-bottom:20px;border-bottom:1px solid var(--border);}
+.eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--cyan);margin-bottom:8px;}
+h1{font-family:var(--font-display);font-size:clamp(26px,3.4vw,40px);margin:0 0 6px;font-weight:700;letter-spacing:-0.5px;}
+h1 span{color:var(--cyan);}
+.subtitle{color:var(--muted);font-size:15px;max-width:640px;line-height:1.5;}
+.hud{
+  font-family:var(--font-mono);
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px 18px;
+  min-width:230px;
+  font-size:12.5px;
+  color:var(--muted);
+}
+.hud b{color:var(--cyan);display:block;font-size:11px;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.hud .coord{color:var(--text);font-size:14px;}
+
+/* TABS */
+.tabbar{display:flex;gap:8px;margin-bottom:26px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.tabbtn{
+  font-family:var(--font-display);
+  background:transparent;border:none;color:var(--muted);
+  font-size:15px;font-weight:600;padding:12px 18px;cursor:pointer;
+  border-bottom:3px solid transparent;transition:all .15s ease;
+  display:flex;align-items:center;gap:8px;
+}
+.tabbtn:hover{color:var(--text);}
+.tabbtn.active{color:var(--cyan);border-bottom-color:var(--cyan);}
+.tabbtn .num{font-family:var(--font-mono);font-size:11px;background:var(--panel-2);border:1px solid var(--border);border-radius:5px;padding:2px 6px;color:var(--muted);}
+.tabbtn.active .num{color:var(--cyan);border-color:var(--cyan);}
+
+.tabpanel{display:none;animation:fade .25s ease;}
+.tabpanel.active{display:block;}
+@keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+/* CARDS */
+.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:18px;}
+.card h2{font-family:var(--font-display);font-size:20px;margin:0 0 4px;font-weight:700;}
+.card h3{font-family:var(--font-display);font-size:15px;margin:0 0 10px;color:var(--cyan);font-weight:600;}
+.card .desc{color:var(--muted);font-size:13.5px;line-height:1.6;margin-bottom:14px;}
+.grid2{display:grid;grid-template-columns:1.1fr 0.9fr;gap:18px;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+@media(max-width:880px){.grid2,.grid3{grid-template-columns:1fr;}}
+
+.formula{font-family:var(--font-mono);background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:15px;color:var(--cyan);display:inline-block;}
+
+/* THEORY DEMO */
+.plot-box{background:var(--panel-2);border:1px solid var(--border);border-radius:10px;min-height:340px;}
+.slider-row{display:flex;align-items:center;gap:12px;margin:10px 0;}
+.slider-row label{font-family:var(--font-mono);font-size:12.5px;color:var(--muted);min-width:110px;}
+input[type=range]{flex:1;accent-color:var(--cyan);}
+.badge{display:inline-block;font-family:var(--font-mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:3px 9px;border-radius:20px;border:1px solid var(--border);color:var(--muted);}
+.badge.on{border-color:var(--cyan);color:var(--cyan);background:rgba(34,211,192,0.08);}
+.badge.warn{border-color:var(--amber);color:var(--amber);background:rgba(245,166,35,0.08);}
+.badge.bad{border-color:var(--coral);color:var(--coral);background:rgba(240,83,122,0.08);}
+
+table{width:100%;border-collapse:collapse;font-family:var(--font-mono);font-size:12.5px;}
+th,td{padding:7px 9px;border-bottom:1px solid var(--border);text-align:left;}
+th{color:var(--muted);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;}
+td{color:var(--text);}
+tr.hl td{color:var(--cyan);}
+
+/* LAB CONTROLS */
+select, .txt-input{
+  width:100%;background:var(--panel-2);border:1px solid var(--border);color:var(--text);
+  border-radius:8px;padding:9px 12px;font-family:var(--font-mono);font-size:13.5px;
+}
+select:focus,.txt-input:focus{outline:none;border-color:var(--cyan);}
+.label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:block;font-family:var(--font-mono);}
+.field{margin-bottom:16px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+button.primary{
+  background:linear-gradient(135deg,var(--cyan),#1AA894);
+  border:none;color:#04201C;font-family:var(--font-display);font-weight:700;
+  padding:11px 20px;border-radius:9px;cursor:pointer;font-size:14px;transition:transform .1s;
+}
+button.primary:hover{transform:translateY(-1px);}
+button.ghost{
+  background:transparent;border:1px solid var(--border);color:var(--text);
+  padding:10px 18px;border-radius:9px;cursor:pointer;font-family:var(--font-body);font-size:13.5px;
+}
+button.ghost:hover{border-color:var(--cyan);color:var(--cyan);}
+
+.feedback-box{border-radius:10px;padding:14px 16px;font-size:13.5px;line-height:1.55;margin-top:10px;border:1px solid var(--border);background:var(--panel-2);}
+.feedback-box.ok{border-color:var(--cyan);background:rgba(34,211,192,0.06);}
+.feedback-box.warn{border-color:var(--amber);background:rgba(245,166,35,0.06);}
+.feedback-box.bad{border-color:var(--coral);background:rgba(240,83,122,0.06);}
+.feedback-box b{font-family:var(--font-display);}
+
+.tip{display:flex;gap:10px;background:var(--panel-2);border:1px dashed var(--border);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--muted);margin-top:10px;}
+.tip .ic{font-size:18px;}
+
+/* IFA */
+.progress-wrap{display:flex;align-items:center;gap:14px;margin-bottom:18px;}
+.progress-bar{flex:1;height:8px;background:var(--panel-2);border-radius:6px;overflow:hidden;border:1px solid var(--border);}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--violet),var(--cyan));width:0%;transition:width .3s;}
+.score-chip{font-family:var(--font-mono);background:var(--panel-2);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12.5px;color:var(--muted);}
+.qcat{font-family:var(--font-mono);font-size:10.5px;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:5px;margin-bottom:10px;display:inline-block;}
+.qcat.interpreta{background:rgba(34,211,192,0.12);color:var(--cyan);}
+.qcat.formula{background:rgba(139,92,246,0.14);color:var(--violet);}
+.qcat.argumenta{background:rgba(245,166,35,0.14);color:var(--amber);}
+.qtext{font-size:15.5px;line-height:1.55;margin-bottom:16px;font-weight:500;}
+.option{
+  display:block;width:100%;text-align:left;background:var(--panel-2);border:1px solid var(--border);
+  color:var(--text);border-radius:9px;padding:12px 14px;margin-bottom:9px;cursor:pointer;font-size:13.5px;
+  transition:all .12s ease;font-family:var(--font-body);
+}
+.option:hover:not(.locked){border-color:var(--cyan);}
+.option.correct{border-color:var(--cyan);background:rgba(34,211,192,0.1);}
+.option.incorrect{border-color:var(--coral);background:rgba(240,83,122,0.1);}
+.option.locked{cursor:default;}
+.qnav{display:flex;justify-content:space-between;margin-top:16px;}
+.dots{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;}
+.dot{width:26px;height:26px;border-radius:6px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:10.5px;color:var(--muted);cursor:pointer;background:var(--panel-2);}
+.dot.answered{background:rgba(34,211,192,0.12);color:var(--cyan);border-color:var(--cyan);}
+.dot.wrong{background:rgba(240,83,122,0.12);color:var(--coral);border-color:var(--coral);}
+.dot.active{outline:2px solid var(--violet);}
+
+.cert-wrap{text-align:center;padding:20px 0;}
+#certCanvas{max-width:100%;border-radius:10px;border:1px solid var(--border);}
+
+.footer-note{text-align:center;color:var(--muted);font-size:12px;margin-top:40px;font-family:var(--font-mono);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div>
+    <div class="eyebrow">Cálculo Multivariado · Ciencias Básicas</div>
+    <h1>Dominio, rango y <span>límites</span> de funciones de dos variables</h1>
+    <div class="subtitle">Laboratorio interactivo: refuerza la teoría, experimenta con superficies en tiempo real y evidencia tu aprendizaje en la evaluación IFA.</div>
+  </div>
+  <div class="hud">
+    <b>Escáner de coordenadas</b>
+    <div class="coord" id="hudCoord">x = —, y = —</div>
+    <div class="coord" id="hudZ">z = —</div>
+  </div>
+</header>
+
+<div class="tabbar">
+  <button class="tabbtn active" data-tab="teoria"><span class="num">01</span> Reforzamiento teórico</button>
+  <button class="tabbtn" data-tab="lab"><span class="num">02</span> Laboratorio virtual</button>
+  <button class="tabbtn" data-tab="ifa"><span class="num">03</span> IFA · Evaluación</button>
+</div>
+
+<!-- ============ TAB 1: TEORÍA ============ -->
+<section class="tabpanel active" id="tab-teoria">
+
+  <div class="grid3">
+    <div class="card">
+      <h3>Dominio</h3>
+      <div class="desc">Conjunto de pares $(x,y)\in\mathbb{R}^2$ para los cuales la expresión $f(x,y)$ produce un número real. Se determina identificando las restricciones algebraicas: radicandos $\ge 0$, denominadores $\ne 0$, argumentos de logaritmo $> 0$.</div>
+      <span class="formula">Dom(f) ⊆ ℝ²</span>
+    </div>
+    <div class="card">
+      <h3>Rango</h3>
+      <div class="desc">Conjunto de valores $z=f(x,y)$ que efectivamente alcanza la función al recorrer todo su dominio. A diferencia del dominio, el rango suele estimarse observando el comportamiento de la superficie (máximos, mínimos, asíntotas).</div>
+      <span class="formula">Ran(f) ⊆ ℝ</span>
+    </div>
+    <div class="card">
+      <h3>Límite</h3>
+      <div class="desc">$\lim_{(x,y)\to(x_0,y_0)} f(x,y)=L$ existe si $f(x,y)$ se aproxima al mismo valor $L$ sin importar la trayectoria por la que $(x,y)$ se acerque a $(x_0,y_0)$. Basta una trayectoria con valor distinto para concluir que el límite no existe.</div>
+      <span class="formula">L ∈ ℝ</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Demostración interactiva 1 — Dominio circular dinámico</h2>
+    <div class="desc">Función: <span class="formula" id="demo1formula">f(x,y) = √(R² − x² − y²)</span>. Ajusta el radio <b>R</b> y observa cómo cambia el disco que define el dominio y el casquete que genera la superficie.</div>
+    <div class="grid2">
+      <div class="plot-box" id="demo1plot3d" style="height:360px;"></div>
+      <div>
+        <div class="plot-box" id="demo1plot2d" style="height:220px;margin-bottom:14px;"></div>
+        <div class="slider-row">
+          <label>Radio R = <span id="demo1Rval">3.0</span></label>
+          <input type="range" id="demo1R" min="0.5" max="5" step="0.1" value="3">
+        </div>
+        <div id="demo1domain" class="feedback-box ok">Dominio: x² + y² ≤ 9 (disco cerrado de radio 3)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Demostración interactiva 2 — Límite dependiente de la trayectoria</h2>
+    <div class="desc">Función: <span class="formula">f(x,y) = xy / (x² + y²)</span>. Desliza la pendiente <b>m</b> de la recta y = m·x y observa el valor al que se aproxima f cuando (x,y) → (0,0) por esa recta.</div>
+    <div class="grid2">
+      <div class="plot-box" id="demo2plot" style="height:340px;"></div>
+      <div>
+        <div class="slider-row">
+          <label>Pendiente m = <span id="demo2mval">1.0</span></label>
+          <input type="range" id="demo2m" min="-4" max="4" step="0.1" value="1">
+        </div>
+        <table>
+          <thead><tr><th>r (distancia al origen)</th><th>x = r·cos, y = m·x</th><th>f(x,y)</th></tr></thead>
+          <tbody id="demo2table"></tbody>
+        </table>
+        <div id="demo2feedback" class="feedback-box warn"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Cómo se determina un dominio, paso a paso</h3>
+    <div class="grid2">
+      <div class="desc" style="margin:0;">
+        <b style="color:var(--text)">1. Identifica los operadores restrictivos</b><br>
+        Raíces de índice par → radicando ≥ 0. Logaritmos → argumento > 0. Fracciones → denominador ≠ 0. Funciones inversas trigonométricas → argumento ∈ [−1,1].
+        <br><br>
+        <b style="color:var(--text)">2. Traduce cada restricción a una desigualdad en x, y</b><br>
+        Ejemplo: f(x,y) = √(9−x²−y²) → 9−x²−y² ≥ 0 → x²+y² ≤ 9.
+      </div>
+      <div class="desc" style="margin:0;">
+        <b style="color:var(--text)">3. Intersecta todas las restricciones</b><br>
+        Si hay varios operadores, el dominio es la intersección de todas las regiones individuales.
+        <br><br>
+        <b style="color:var(--text)">4. Clasifica la frontera</b><br>
+        Desigualdad estricta (&gt;, &lt;) → frontera abierta (no incluida, se dibuja punteada). Desigualdad no estricta (≥, ≤) → frontera cerrada (incluida, línea sólida).
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ============ TAB 2: LABORATORIO ============ -->
+<section class="tabpanel" id="tab-lab">
+
+  <div class="grid2">
+    <div class="card">
+      <h2>Configura la función</h2>
+      <div class="field">
+        <span class="label">Banco de funciones</span>
+        <select id="labPreset"></select>
+      </div>
+      <div class="field">
+        <span class="label">Expresión f(x,y) — editable</span>
+        <input type="text" class="txt-input" id="labExpr" value="sqrt(9 - x^2 - y^2)">
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <span class="label">Ventana x: [min, max]</span>
+          <div class="two-col"><input type="text" class="txt-input" id="labXmin" value="-4"><input type="text" class="txt-input" id="labXmax" value="4"></div>
+        </div>
+        <div class="field">
+          <span class="label">Ventana y: [min, max]</span>
+          <div class="two-col"><input type="text" class="txt-input" id="labYmin" value="-4"><input type="text" class="txt-input" id="labYmax" value="4"></div>
+        </div>
+      </div>
+      <button class="primary" id="labRun">Analizar función</button>
+      <div id="labDomainBox" class="feedback-box" style="margin-top:16px;"></div>
+      <div id="labTip" class="tip" style="display:none;"><span class="ic">💡</span><span id="labTipText"></span></div>
+    </div>
+
+    <div class="card">
+      <h2>Análisis del rango</h2>
+      <div class="desc">Estimación numérica calculada sobre la malla del dominio visible.</div>
+      <div id="labRangeBox" class="feedback-box">Ejecuta el análisis para estimar el rango.</div>
+      <h3 style="margin-top:18px;">Mapa de dominio (planta xy)</h3>
+      <div class="plot-box" id="labDomainPlot" style="height:260px;"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Superficie 3D — con huecos en puntos no definidos</h2>
+    <div class="plot-box" id="labSurfacePlot" style="height:440px;"></div>
+  </div>
+
+  <div class="card">
+    <h2>Explorador de límites en tiempo real</h2>
+    <div class="desc">Elige un punto (x₀, y₀) y compara el valor de f a lo largo de distintas trayectorias que se aproximan a ese punto. Si todos los valores convergen al mismo número, hay evidencia de que el límite existe; si difieren, el límite no existe.</div>
+    <div class="grid2">
+      <div>
+        <div class="two-col">
+          <div class="field"><span class="label">x₀</span><input type="text" class="txt-input" id="limX0" value="0"></div>
+          <div class="field"><span class="label">y₀</span><input type="text" class="txt-input" id="limY0" value="0"></div>
+        </div>
+        <div class="slider-row">
+          <label>Pendiente m = <span id="limMval">1.0</span></label>
+          <input type="range" id="limM" min="-6" max="6" step="0.1" value="1">
+        </div>
+        <table>
+          <thead><tr><th>Trayectoria</th><th>r → 0.5</th><th>r → 0.1</th><th>r → 0.01</th><th>r → 0.001</th></tr></thead>
+          <tbody id="limTable"></tbody>
+        </table>
+      </div>
+      <div>
+        <div id="limFeedback" class="feedback-box">Configura el punto y presiona «Analizar función» para comenzar.</div>
+        <div id="limTip" class="tip"><span class="ic">🧭</span><span>Prueba m = 0 (eje x), variando m gradualmente, y compara contra la trayectoria vertical x = x₀.</span></div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ============ TAB 3: IFA ============ -->
+<section class="tabpanel" id="tab-ifa">
+  <div class="card" id="ifaIntro">
+    <h2>IFA — Interpreta, Formula y Argumenta</h2>
+    <div class="desc">15 ejercicios de competencias tipo ICFES sobre dominio, rango y límites de funciones multivariadas. Necesitas al menos <b style="color:var(--cyan)">9 de 15</b> respuestas correctas para obtener el certificado de logro.</div>
+    <div class="progress-wrap">
+      <div class="score-chip" id="ifaProgressLabel">0 / 15 respondidas</div>
+      <div class="progress-bar"><div class="progress-fill" id="ifaProgressFill"></div></div>
+      <div class="score-chip" id="ifaScoreLabel">Aciertos: 0</div>
+    </div>
+    <div class="dots" id="ifaDots"></div>
+  </div>
+
+  <div class="card" id="ifaQuestionCard">
+    <span class="qcat" id="ifaCat">INTERPRETA</span>
+    <div class="qtext" id="ifaQtext"></div>
+    <div id="ifaOptions"></div>
+    <div id="ifaFeedback" class="feedback-box" style="display:none;"></div>
+    <div class="qnav">
+      <button class="ghost" id="ifaPrev">← Anterior</button>
+      <button class="ghost" id="ifaNext">Siguiente →</button>
+    </div>
+  </div>
+
+  <div class="card" id="ifaResultCard" style="display:none;">
+    <h2 id="ifaResultTitle"></h2>
+    <div class="desc" id="ifaResultDesc"></div>
+    <div id="ifaCertSection" style="display:none;">
+      <div class="field">
+        <span class="label">Nombre del estudiante</span>
+        <input type="text" class="txt-input" id="certName" placeholder="Escribe tu nombre completo">
+      </div>
+      <button class="primary" id="genCertBtn">Generar certificado</button>
+      <div class="cert-wrap" id="certWrap" style="display:none;">
+        <canvas id="certCanvas" width="1000" height="700"></canvas><br><br>
+        <button class="ghost" id="downloadCertBtn">Descargar certificado (PNG)</button>
+      </div>
+    </div>
+    <button class="ghost" id="restartIfa" style="margin-top:14px;">Reiniciar evaluación</button>
+  </div>
+</section>
+
+<div class="footer-note">UCompensar · Departamento de Ciencias Básicas · Cálculo Multivariado</div>
+</div>
+
+<script>
+/* ==================================================================
+   UTILIDADES MATEMÁTICAS
+   ================================================================== */
+function safeEval(compiled, xv, yv){
+  try{
+    const val = compiled.evaluate({x:xv, y:yv});
+    if (typeof val !== 'number') return NaN;
+    if (!isFinite(val)) return NaN;
+    return val;
+  }catch(e){ return NaN; }
+}
+
+function buildGrid(exprStr, xmin, xmax, ymin, ymax, steps){
+  const compiled = math.compile(exprStr);
+  const xs = [], ys = [];
+  for(let i=0;i<=steps;i++){ xs.push(xmin + (xmax-xmin)*i/steps); }
+  for(let j=0;j<=steps;j++){ ys.push(ymin + (ymax-ymin)*j/steps); }
+  const Z = [];
+  let zmin = Infinity, zmax = -Infinity, definedCount=0, total=0;
+  for(let j=0;j<=steps;j++){
+    const row = [];
+    for(let i=0;i<=steps;i++){
+      const v = safeEval(compiled, xs[i], ys[j]);
+      row.push(v);
+      total++;
+      if(!isNaN(v)){ definedCount++; if(v<zmin)zmin=v; if(v>zmax)zmax=v; }
+    }
+    Z.push(row);
+  }
+  return {xs, ys, Z, zmin, zmax, definedCount, total, compiled};
+}
+
+/* Domain mask matrix: 1 = defined, NaN = undefined (for heatmap) */
+function domainMask(Z){
+  return Z.map(row=>row.map(v=> isNaN(v) ? NaN : 1));
+}
+
+/* ==================================================================
+   TABS
+   ================================================================== */
+document.querySelectorAll('.tabbtn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tabbtn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tabpanel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+    window.dispatchEvent(new Event('resize'));
+  });
+});
+
+/* ==================================================================
+   HUD — escáner de coordenadas (se activa con hover en cualquier plot)
+   ================================================================== */
+function bindHud(plotDiv){
+  plotDiv.on('plotly_hover', (data)=>{
+    const pt = data.points[0];
+    const x = pt.x!==undefined? Number(pt.x).toFixed(2): '—';
+    const y = pt.y!==undefined? Number(pt.y).toFixed(2): '—';
+    const z = pt.z!==undefined? Number(pt.z).toFixed(3): (pt.value!==undefined? Number(pt.value).toFixed(3):'—');
+    document.getElementById('hudCoord').textContent = `x = ${x}, y = ${y}`;
+    document.getElementById('hudZ').textContent = `z = ${z}`;
+  });
+}
+
+const layoutBase3D = {
+  paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)',
+  margin:{l:0,r:0,t:10,b:0},
+  scene:{
+    xaxis:{title:'x', color:'#8493AD', gridcolor:'#243456', backgroundcolor:'rgba(0,0,0,0)'},
+    yaxis:{title:'y', color:'#8493AD', gridcolor:'#243456', backgroundcolor:'rgba(0,0,0,0)'},
+    zaxis:{title:'z', color:'#8493AD', gridcolor:'#243456', backgroundcolor:'rgba(0,0,0,0)'},
+    camera:{eye:{x:1.5,y:-1.5,z:0.9}}
+  },
+  font:{family:'Inter', color:'#E8ECF3', size:11}
+};
+const layoutBase2D = {
+  paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)',
+  margin:{l:36,r:10,t:10,b:30},
+  xaxis:{title:'x', color:'#8493AD', gridcolor:'#243456', zeroline:false},
+  yaxis:{title:'y', color:'#8493AD', gridcolor:'#243456', zeroline:false},
+  font:{family:'Inter', color:'#E8ECF3', size:11}
+};
+const colorscaleMain = [[0,'#0B1220'],[0.3,'#1AA894'],[0.6,'#22D3C0'],[1,'#8B5CF6']];
+
+/* ==================================================================
+   TEORÍA — DEMO 1: dominio circular dinámico
+   ================================================================== */
+function renderDemo1(R){
+  const g = buildGrid(`sqrt(${R}^2 - x^2 - y^2)`, -5, 5, -5, 5, 45);
+  Plotly.react('demo1plot3d', [{
+    type:'surface', x:g.xs, y:g.ys, z:g.Z, colorscale:colorscaleMain, showscale:false,
+    contours:{z:{show:true, usecolormap:true, project:{z:true}}}
+  }], layoutBase3D, {displayModeBar:false, responsive:true});
+
+  const theta = []; for(let i=0;i<=100;i++) theta.push(i*2*Math.PI/100);
+  Plotly.react('demo1plot2d', [
+    {x:theta.map(t=>R*Math.cos(t)), y:theta.map(t=>R*Math.sin(t)), mode:'lines', line:{color:'#22D3C0', width:3}, fill:'toself', fillcolor:'rgba(34,211,192,0.12)', name:'Dominio'}
+  ], Object.assign({}, layoutBase2D, {xaxis:{...layoutBase2D.xaxis, range:[-5,5]}, yaxis:{...layoutBase2D.yaxis, range:[-5,5], scaleanchor:'x'}}), {displayModeBar:false, responsive:true});
+
+  document.getElementById('demo1formula').textContent = `f(x,y) = √(${R.toFixed(1)}² − x² − y²)`;
+  document.getElementById('demo1domain').textContent = `Dominio: x² + y² ≤ ${(R*R).toFixed(2)} (disco cerrado de radio ${R.toFixed(1)})`;
+  bindHud(document.getElementById('demo1plot3d'));
+}
+document.getElementById('demo1R').addEventListener('input', (e)=>{
+  const R = parseFloat(e.target.value);
+  document.getElementById('demo1Rval').textContent = R.toFixed(1);
+  renderDemo1(R);
+});
+
+/* ==================================================================
+   TEORÍA — DEMO 2: límite dependiente de trayectoria
+   ================================================================== */
+function renderDemo2(m){
+  const compiled = math.compile('(x*y)/(x^2+y^2)');
+  const g = buildGrid('(x*y)/(x^2+y^2)', -3, 3, -3, 3, 55);
+  const rs = [1.5, 0.8, 0.3];
+  const traceX = rs.map(r=> r/Math.sqrt(1+m*m));
+  const traceY = traceX.map(x=> m*x);
+  const traceZ = traceX.map((x,i)=> safeEval(compiled, x, traceY[i]));
+
+  Plotly.react('demo2plot', [
+    {type:'surface', x:g.xs, y:g.ys, z:g.Z, colorscale:colorscaleMain, showscale:false, opacity:0.85},
+    {type:'scatter3d', mode:'markers+lines', x:traceX, y:traceY, z:traceZ, marker:{size:5,color:'#F5A623'}, line:{color:'#F5A623', width:5}, name:'Trayectoria y=mx'}
+  ], layoutBase3D, {displayModeBar:false, responsive:true});
+
+  const rows = [0.5, 0.1, 0.01, 0.001];
+  const tbody = document.getElementById('demo2table');
+  tbody.innerHTML = '';
+  let limitVal = m/(1+m*m);
+  rows.forEach(r=>{
+    const x = r/Math.sqrt(1+m*m);
+    const y = m*x;
+    const z = safeEval(compiled, x, y);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${r}</td><td>x=${x.toFixed(4)}, y=${y.toFixed(4)}</td><td>${isNaN(z)?'indef.':z.toFixed(6)}</td>`;
+    tbody.appendChild(tr);
+  });
+  const fb = document.getElementById('demo2feedback');
+  fb.innerHTML = `Con m = ${m.toFixed(1)}, el valor límite a lo largo de esta recta es <b>${limitVal.toFixed(4)}</b>. Cambia m y notarás que este valor <b>varía</b>: eso demuestra que <b>lím(x,y)→(0,0) f(x,y) NO existe</b>.`;
+  bindHud(document.getElementById('demo2plot'));
+}
+document.getElementById('demo2m').addEventListener('input', (e)=>{
+  const m = parseFloat(e.target.value);
+  document.getElementById('demo2mval').textContent = m.toFixed(1);
+  renderDemo2(m);
+});
+
+/* ==================================================================
+   LABORATORIO VIRTUAL
+   ================================================================== */
+const PRESETS = [
+  {name:"Paraboloide con tope — f(x,y) = √(9 − x² − y²)", expr:"sqrt(9 - x^2 - y^2)", xmin:-4,xmax:4,ymin:-4,ymax:4,
+   domainDesc:"Círculo cerrado: x² + y² ≤ 9 (disco de radio 3).",
+   tip:"La raíz cuadrada exige que el radicando sea ≥ 0. Dibuja la frontera x²+y²=9 (circunferencia) para visualizar el borde del dominio."},
+  {name:"Logaritmo de diferencia — f(x,y) = ln(x − y)", expr:"log(x - y)", xmin:-4,xmax:4,ymin:-4,ymax:4,
+   domainDesc:"Semiplano abierto: x > y.",
+   tip:"El logaritmo exige argumento estrictamente positivo; la recta x=y NO pertenece al dominio (frontera abierta, se dibuja punteada)."},
+  {name:"Recíproco radial — f(x,y) = 1 / (x² + y²)", expr:"1/(x^2+y^2)", xmin:-3,xmax:3,ymin:-3,ymax:3,
+   domainDesc:"Todo el plano excepto el origen: (x,y) ≠ (0,0).",
+   tip:"El denominador se anula solo en el origen; allí aparece una asíntota vertical y un hueco (gap) en la superficie."},
+  {name:"Cociente mixto — f(x,y) = √x / y", expr:"sqrt(x)/y", xmin:-1,xmax:6,ymin:-4,ymax:4,
+   domainDesc:"x ≥ 0 y y ≠ 0 simultáneamente.",
+   tip:"Combina dos restricciones: la raíz exige x≥0 y el denominador exige y≠0. El dominio es la mitad derecha del plano, sin el eje x."},
+  {name:"Límite clásico (no existe) — f(x,y) = xy / (x² + y²)", expr:"(x*y)/(x^2+y^2)", xmin:-3,xmax:3,ymin:-3,ymax:3,
+   domainDesc:"Todo el plano excepto el origen.",
+   tip:"Prueba distintas trayectorias y=mx en el explorador de límites: el resultado depende de m, evidencia de que el límite NO existe en el origen."},
+  {name:"Diferencia normalizada — f(x,y) = (x² − y²)/(x² + y²)", expr:"(x^2-y^2)/(x^2+y^2)", xmin:-3,xmax:3,ymin:-3,ymax:3,
+   domainDesc:"Todo el plano excepto el origen.",
+   tip:"También depende de la trayectoria: compara el eje x (y=0, valor 1) frente al eje y (x=0, valor −1)."},
+  {name:"Seno cardinal radial — f(x,y) = sin(x²+y²)/(x²+y²)", expr:"sin(x^2+y^2)/(x^2+y^2)", xmin:-3,xmax:3,ymin:-3,ymax:3,
+   domainDesc:"Todo el plano excepto el origen (discontinuidad evitable).",
+   tip:"El límite SÍ existe y vale 1 en el origen (discontinuidad evitable), aunque la función no esté definida allí."},
+  {name:"Corona logarítmica — f(x,y) = ln(x² + y² − 1)", expr:"log(x^2+y^2-1)", xmin:-3,xmax:3,ymin:-3,ymax:3,
+   domainDesc:"Exterior del disco unitario: x² + y² > 1.",
+   tip:"El argumento del logaritmo exige x²+y²>1; la circunferencia unitaria es frontera excluida."}
+];
+
+const presetSel = document.getElementById('labPreset');
+PRESETS.forEach((p,i)=>{
+  const opt = document.createElement('option');
+  opt.value = i; opt.textContent = p.name;
+  presetSel.appendChild(opt);
+});
+presetSel.addEventListener('change', ()=>{
+  const p = PRESETS[presetSel.value];
+  document.getElementById('labExpr').value = p.expr;
+  document.getElementById('labXmin').value = p.xmin;
+  document.getElementById('labXmax').value = p.xmax;
+  document.getElementById('labYmin').value = p.ymin;
+  document.getElementById('labYmax').value = p.ymax;
+});
+
+function contextualTip(exprStr, preset){
+  if(preset) return preset.tip;
+  let tips = [];
+  if(/sqrt/.test(exprStr)) tips.push("Hay una raíz cuadrada: exige que el radicando sea ≥ 0.");
+  if(/log/.test(exprStr)) tips.push("Hay un logaritmo: exige que el argumento sea estrictamente > 0.");
+  if(/\//.test(exprStr)) tips.push("Hay una fracción: excluye los puntos donde el denominador se anula.");
+  if(tips.length===0) tips.push("Función polinómica o combinación de operaciones sin restricciones evidentes: probablemente el dominio es todo ℝ².");
+  return tips.join(' ');
+}
+
+function runLabAnalysis(){
+  const exprStr = document.getElementById('labExpr').value.trim();
+  const xmin = parseFloat(document.getElementById('labXmin').value);
+  const xmax = parseFloat(document.getElementById('labXmax').value);
+  const ymin = parseFloat(document.getElementById('labYmin').value);
+  const ymax = parseFloat(document.getElementById('labYmax').value);
+  const presetIdx = presetSel.value;
+  const matchedPreset = PRESETS.find(p=>p.expr===exprStr);
+
+  let g;
+  try{
+    g = buildGrid(exprStr, xmin, xmax, ymin, ymax, 60);
+  }catch(e){
+    document.getElementById('labDomainBox').className = 'feedback-box bad';
+    document.getElementById('labDomainBox').innerHTML = '<b>Error de sintaxis.</b> Revisa la expresión (usa ^ para potencias, sqrt(), log(), sin(), cos(), etc.).';
+    return;
+  }
+
+  const pct = (100*g.definedCount/g.total).toFixed(0);
+  const domainBox = document.getElementById('labDomainBox');
+  if(matchedPreset){
+    domainBox.className = 'feedback-box ok';
+    domainBox.innerHTML = `<b>Dominio:</b> ${matchedPreset.domainDesc}<br><span style="color:var(--muted)">≈ ${pct}% de la ventana visible pertenece al dominio.</span>`;
+  } else {
+    domainBox.className = g.definedCount===g.total ? 'feedback-box ok' : 'feedback-box warn';
+    domainBox.innerHTML = `<b>Dominio (estimado numéricamente):</b> ${g.definedCount===g.total ? 'la función está definida en toda la ventana visible.' : `aproximadamente ${pct}% de la ventana visible pertenece al dominio; el resto corresponde a puntos donde la expresión no produce un valor real (radicando negativo, denominador nulo o logaritmo no positivo).`}`;
+  }
+
+  document.getElementById('labTip').style.display = 'flex';
+  document.getElementById('labTipText').textContent = contextualTip(exprStr, matchedPreset);
+
+  // Rango
+  const rangeBox = document.getElementById('labRangeBox');
+  if(g.definedCount>0){
+    rangeBox.className = 'feedback-box ok';
+    rangeBox.innerHTML = `<b>Rango estimado:</b> [${g.zmin.toFixed(3)}, ${g.zmax.toFixed(3)}]<br><span style="color:var(--muted)">Calculado sobre ${g.definedCount} puntos definidos de una malla de ${g.total}. Es una estimación numérica; el rango exacto puede requerir análisis de extremos.</span>`;
+  } else {
+    rangeBox.className = 'feedback-box bad';
+    rangeBox.innerHTML = `<b>La función no está definida en ningún punto de la ventana actual.</b> Amplía la ventana x,y.`;
+  }
+
+  // Mapa de dominio (heatmap)
+  Plotly.react('labDomainPlot', [{
+    type:'heatmap', x:g.xs, y:g.ys, z:domainMask(g.Z),
+    colorscale:[[0,'#F0537A'],[1,'#22D3C0']], showscale:false, hoverongaps:false, opacity:0.85
+  }], layoutBase2D, {displayModeBar:false, responsive:true});
+
+  // Superficie 3D
+  Plotly.react('labSurfacePlot', [{
+    type:'surface', x:g.xs, y:g.ys, z:g.Z, colorscale:colorscaleMain, showscale:true,
+    connectgaps:false,
+    contours:{z:{show:true, usecolormap:true, project:{z:true}}}
+  }], layoutBase3D, {displayModeBar:false, responsive:true});
+  bindHud(document.getElementById('labSurfacePlot'));
+
+  window._labCompiled = g.compiled;
+  window._labExprStr = exprStr;
+  runLimitAnalysis();
+}
+document.getElementById('labRun').addEventListener('click', runLabAnalysis);
+
+/* ---------- Explorador de límites ---------- */
+function runLimitAnalysis(){
+  if(!window._labCompiled) return;
+  const compiled = window._labCompiled;
+  const x0 = parseFloat(document.getElementById('limX0').value) || 0;
+  const y0 = parseFloat(document.getElementById('limY0').value) || 0;
+  const m = parseFloat(document.getElementById('limM').value);
+  document.getElementById('limMval').textContent = m.toFixed(1);
+
+  const rSteps = [0.5, 0.1, 0.01, 0.001];
+  const tbody = document.getElementById('limTable');
+  tbody.innerHTML = '';
+
+  function pathRow(label, xFn, yFn){
+    const vals = rSteps.map(r=> safeEval(compiled, xFn(r), yFn(r)));
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${label}</td>` + vals.map(v=>`<td>${isNaN(v)?'indef.':v.toFixed(5)}</td>`).join('');
+    tbody.appendChild(tr);
+    return vals;
+  }
+
+  const valsM   = pathRow(`y = ${m.toFixed(1)}·(x−x₀)+y₀`, r=> x0 + r/Math.sqrt(1+m*m), r=> y0 + m*(r/Math.sqrt(1+m*m)));
+  const valsVert= pathRow('x = x₀ (vertical)', r=> x0, r=> y0 + r);
+  const valsHorz= pathRow('y = y₀ (horizontal)', r=> x0 + r, r=> y0);
+  const valsPar = pathRow('y = y₀ + (x−x₀)²', r=> x0 + r, r=> y0 + r*r);
+
+  const lastVals = [valsM[3], valsVert[3], valsHorz[3], valsPar[3]].filter(v=>!isNaN(v));
+  const fb = document.getElementById('limFeedback');
+  if(lastVals.length<2){
+    fb.className = 'feedback-box warn';
+    fb.innerHTML = `No hay suficientes trayectorias definidas cerca de (${x0}, ${y0}) para comparar. Prueba otro punto.`;
+  } else {
+    const spread = Math.max(...lastVals) - Math.min(...lastVals);
+    if(spread < 0.001){
+      fb.className = 'feedback-box ok';
+      fb.innerHTML = `<b>Evidencia de existencia:</b> las cuatro trayectorias convergen aproximadamente al mismo valor (≈ ${lastVals[0].toFixed(4)}) cuando r → 0. Esto es evidencia numérica de que <b>lím f(x,y) existe</b> en (${x0}, ${y0}). Recuerda: esto no reemplaza una demostración formal (ε–δ).`;
+    } else {
+      fb.className = 'feedback-box bad';
+      fb.innerHTML = `<b>Evidencia de no existencia:</b> los valores difieren claramente entre trayectorias (rango de diferencia ≈ ${spread.toFixed(4)}) cuando r → 0. Esto es evidencia de que <b>lím f(x,y) NO existe</b> en (${x0}, ${y0}).`;
+    }
+  }
+}
+['limX0','limY0'].forEach(id=> document.getElementById(id).addEventListener('change', runLimitAnalysis));
+document.getElementById('limM').addEventListener('input', runLimitAnalysis);
+
+// Init lab with first preset
+presetSel.value = 0;
+document.getElementById('labExpr').value = PRESETS[0].expr;
+
+/* ==================================================================
+   IFA — BANCO DE PREGUNTAS
+   ================================================================== */
+const IFA_BANK = [
+{cat:'interpreta', q:'Observa la superficie z = √(4 − x² − y²). ¿Qué figura geométrica delimita su dominio en el plano xy?',
+ opts:['Una recta','Una circunferencia de radio 2','Una parábola','Un par de rectas paralelas'], correct:1,
+ exp:'El radicando exige 4−x²−y² ≥ 0, es decir x²+y² ≤ 4: un disco delimitado por la circunferencia de radio 2.'},
+{cat:'formula', q:'Escribe la restricción algebraica que define el dominio de f(x,y) = ln(y − x²).',
+ opts:['y > x²','y < x²','y ≠ x²','y ≥ x²'], correct:0,
+ exp:'El logaritmo exige argumento estrictamente positivo: y − x² > 0, es decir y > x².'},
+{cat:'argumenta', q:'Para f(x,y) = xy/(x²+y²), al aproximarse al origen por y = x se obtiene 1/2, y por y = 0 se obtiene 0. ¿Qué se puede concluir?',
+ opts:['El límite existe y vale 0','El límite existe y vale 1/2','El límite no existe, pues depende de la trayectoria','Falta más información para decidir'], correct:2,
+ exp:'Si dos trayectorias distintas producen valores distintos, el límite doble no existe, por definición.'},
+{cat:'interpreta', q:'En la gráfica de f(x,y) = 1/(x²+y²) se observa que la superficie "se dispara" cerca del origen. ¿Qué representa este comportamiento?',
+ opts:['Un máximo relativo','Una asíntota vertical / discontinuidad no evitable','Un mínimo relativo','Un punto de silla'], correct:1,
+ exp:'Cuando el denominador tiende a 0, la función crece sin cota: es una asíntota vertical, discontinuidad esencial (no evitable).'},
+{cat:'formula', q:'¿Cuál es el dominio de f(x,y) = √x / y?',
+ opts:['{(x,y): x≥0, y≠0}','{(x,y): x>0, y>0}','{(x,y): x≥0}','{(x,y): y≠0}'], correct:0,
+ exp:'La raíz exige x≥0 y el denominador exige y≠0; ambas restricciones deben cumplirse simultáneamente.'},
+{cat:'argumenta', q:'f(x,y) = sin(x²+y²)/(x²+y²) no está definida en (0,0), pero al calcular el límite por cualquier trayectoria se obtiene 1. ¿Cómo se clasifica esta discontinuidad?',
+ opts:['Esencial','Evitable (removible)','De salto','No existe discontinuidad'], correct:1,
+ exp:'Como el límite existe (vale 1) aunque la función no esté definida en el punto, la discontinuidad es evitable: bastaría redefinir f(0,0)=1.'},
+{cat:'interpreta', q:'¿Qué representa la región en color coral (rojo/rosado) en un mapa de dominio (heatmap) frente al color cian (verde-azulado)?',
+ opts:['Valores donde f es máxima','Valores donde f no está definida','Valores negativos de f','El rango de f'], correct:1,
+ exp:'En el mapa de dominio del laboratorio, el color coral marca los puntos donde la expresión no produce un valor real (fuera del dominio).'},
+{cat:'formula', q:'Determina el dominio de f(x,y) = ln(x² + y² − 1).',
+ opts:['x²+y² < 1','x²+y² > 1','x²+y² = 1','x²+y² ≤ 1'], correct:1,
+ exp:'El argumento del logaritmo debe ser estrictamente positivo: x²+y²−1 > 0, es decir x²+y² > 1 (exterior del disco unitario).'},
+{cat:'argumenta', q:'Al evaluar f(x,y) = (x²−y²)/(x²+y²) sobre el eje x (y=0) se obtiene 1, y sobre el eje y (x=0) se obtiene −1. ¿Qué concluyes sobre lím (x,y)→(0,0) f(x,y)?',
+ opts:['Existe y vale 0','Existe y vale 1','No existe','Existe y vale −1'], correct:2,
+ exp:'Dos trayectorias producen valores distintos (1 y −1), lo cual es suficiente para afirmar que el límite no existe.'},
+{cat:'interpreta', q:'¿Cuál de las siguientes funciones presentaría un "hueco" puntual (gap) en su gráfica 3D?',
+ opts:['f(x,y) = x+y','f(x,y) = sin(x²+y²)/(x²+y²)','f(x,y) = x²+y²','f(x,y) = cos(x)'], correct:1,
+ exp:'Esta función no está definida solo en (0,0), lo que genera un hueco puntual en una superficie por lo demás continua.'},
+{cat:'formula', q:'El rango estimado de f(x,y) = √(9−x²−y²) sobre su dominio es:',
+ opts:['[0, 3]','[−3, 3]','[0, 9]','(0, ∞)'], correct:0,
+ exp:'La raíz cuadrada nunca es negativa (mínimo 0, en la frontera del disco) y alcanza su máximo 3 en el centro (0,0), donde el radicando es 9.'},
+{cat:'argumenta', q:'Si al acercarnos a un punto por varias trayectorias distintas (rectas y parábolas) siempre se obtiene el mismo valor L, ¿es válido afirmar que el límite existe formalmente?',
+ opts:['Sí, con varias trayectorias coincidentes ya queda demostrado','No, coincidir en varias trayectorias es evidencia a favor pero no constituye una demostración rigurosa','No, nunca se puede concluir nada','Sí, pero solo si son rectas'], correct:1,
+ exp:'Coincidir en varias trayectorias es evidencia fuerte, pero la existencia formal del límite requiere una demostración ε–δ válida para TODA trayectoria posible.'},
+{cat:'interpreta', q:'En el explorador de límites, la tabla muestra valores distintos de f(x,y)=xy/(x²+y²) según la pendiente m de la recta y=mx. ¿Qué evidencia esto?',
+ opts:['Que el dominio es vacío','Que el límite direccional depende de m, por tanto el límite doble no existe','Que la función es continua en el origen','Que el rango es infinito'], correct:1,
+ exp:'La dependencia del resultado respecto a m es precisamente la evidencia numérica de que el límite doble no existe.'},
+{cat:'formula', q:'¿Cuál es el dominio de f(x,y) = ln(x − y)?',
+ opts:['x ≥ y','x > y','x < y','x ≠ y'], correct:1,
+ exp:'El logaritmo exige argumento estrictamente positivo: x − y > 0, es decir x > y.'},
+{cat:'argumenta', q:'Una función puede tener límite en un punto aunque no esté definida allí (como sin(x²+y²)/(x²+y²) en el origen). ¿Qué distingue el concepto de "límite" del de "valor de la función"?',
+ opts:['Son sinónimos, siempre coinciden','El límite describe el comportamiento de acercamiento, independientemente de si f está definida en el punto exacto','El límite solo existe si la función está definida en el punto','El valor de la función siempre determina el límite'], correct:1,
+ exp:'El límite es un concepto de aproximación (qué pasa cerca del punto), mientras que el valor de la función es lo que ocurre exactamente en el punto; pueden no coincidir, o uno puede existir sin el otro.'}
+];
+
+let ifaState = {current:0, answers:new Array(IFA_BANK.length).fill(null)};
+
+function renderDots(){
+  const wrap = document.getElementById('ifaDots');
+  wrap.innerHTML = '';
+  IFA_BANK.forEach((q,i)=>{
+    const d = document.createElement('div');
+    d.className = 'dot';
+    if(i===ifaState.current) d.classList.add('active');
+    if(ifaState.answers[i]!==null){
+      d.classList.add(ifaState.answers[i]===IFA_BANK[i].correct ? 'answered':'wrong');
+    }
+    d.textContent = i+1;
+    d.addEventListener('click', ()=>{ ifaState.current=i; renderQuestion(); });
+    wrap.appendChild(d);
+  });
+}
+
+function renderProgress(){
+  const answeredCount = ifaState.answers.filter(a=>a!==null).length;
+  const correctCount = ifaState.answers.filter((a,i)=>a===IFA_BANK[i].correct).length;
+  document.getElementById('ifaProgressLabel').textContent = `${answeredCount} / ${IFA_BANK.length} respondidas`;
+  document.getElementById('ifaProgressFill').style.width = (100*answeredCount/IFA_BANK.length)+'%';
+  document.getElementById('ifaScoreLabel').textContent = `Aciertos: ${correctCount}`;
+}
+
+const catLabel = {interpreta:'INTERPRETA', formula:'FORMULA', argumenta:'ARGUMENTA'};
+
+function renderQuestion(){
+  const i = ifaState.current;
+  const q = IFA_BANK[i];
+  document.getElementById('ifaCat').textContent = catLabel[q.cat];
+  document.getElementById('ifaCat').className = 'qcat ' + q.cat;
+  document.getElementById('ifaQtext').textContent = `${i+1}. ${q.q}`;
+  const optWrap = document.getElementById('ifaOptions');
+  optWrap.innerHTML = '';
+  const answered = ifaState.answers[i];
+  q.opts.forEach((opt,idx)=>{
+    const b = document.createElement('button');
+    b.className = 'option';
+    b.textContent = opt;
+    if(answered!==null){
+      b.classList.add('locked');
+      if(idx===q.correct) b.classList.add('correct');
+      else if(idx===answered) b.classList.add('incorrect');
+    }
+    b.addEventListener('click', ()=>{
+      if(ifaState.answers[i]!==null) return;
+      ifaState.answers[i] = idx;
+      renderQuestion();
+      renderDots();
+      renderProgress();
+    });
+    optWrap.appendChild(b);
+  });
+  const fb = document.getElementById('ifaFeedback');
+  if(answered!==null){
+    fb.style.display = 'block';
+    const isCorrect = answered===q.correct;
+    fb.className = 'feedback-box ' + (isCorrect?'ok':'bad');
+    fb.innerHTML = `<b>${isCorrect?'¡Correcto!':'No es correcto.'}</b> ${q.exp}`;
+  } else {
+    fb.style.display = 'none';
+  }
+  renderDots();
+  renderProgress();
+  document.getElementById('ifaPrev').disabled = (i===0);
+  document.getElementById('ifaNext').textContent = (i===IFA_BANK.length-1) ? 'Finalizar evaluación →' : 'Siguiente →';
+}
+
+document.getElementById('ifaPrev').addEventListener('click', ()=>{
+  if(ifaState.current>0){ ifaState.current--; renderQuestion(); }
+});
+document.getElementById('ifaNext').addEventListener('click', ()=>{
+  if(ifaState.current < IFA_BANK.length-1){
+    ifaState.current++;
+    renderQuestion();
+  } else {
+    showIfaResults();
+  }
+});
+
+function showIfaResults(){
+  const answeredCount = ifaState.answers.filter(a=>a!==null).length;
+  if(answeredCount < IFA_BANK.length){
+    alert(`Aún tienes ${IFA_BANK.length-answeredCount} pregunta(s) sin responder. Puedes usar los números de arriba para ubicarlas.`);
+    return;
+  }
+  document.getElementById('ifaQuestionCard').style.display = 'none';
+  const correctCount = ifaState.answers.filter((a,i)=>a===IFA_BANK[i].correct).length;
+  const passed = correctCount >= 9;
+  const resultCard = document.getElementById('ifaResultCard');
+  resultCard.style.display = 'block';
+  document.getElementById('ifaResultTitle').textContent = passed
+    ? `¡Aprobado! ${correctCount} / 15 aciertos`
+    : `${correctCount} / 15 aciertos — aún no alcanzas el mínimo`;
+  document.getElementById('ifaResultDesc').innerHTML = passed
+    ? 'Superaste el umbral de 9 aciertos requeridos. Genera tu certificado de logro a continuación.'
+    : 'El umbral mínimo para el certificado es 9 aciertos sobre 15. Revisa la sección teórica y el laboratorio, y vuelve a intentarlo.';
+  document.getElementById('ifaCertSection').style.display = passed ? 'block' : 'none';
+}
+
+document.getElementById('restartIfa').addEventListener('click', ()=>{
+  ifaState = {current:0, answers:new Array(IFA_BANK.length).fill(null)};
+  document.getElementById('ifaQuestionCard').style.display = 'block';
+  document.getElementById('ifaResultCard').style.display = 'none';
+  document.getElementById('certWrap').style.display = 'none';
+  renderQuestion();
+});
+
+/* ---------- Certificado ---------- */
+document.getElementById('genCertBtn').addEventListener('click', ()=>{
+  const name = document.getElementById('certName').value.trim();
+  if(!name){ alert('Escribe tu nombre completo para generar el certificado.'); return; }
+  const correctCount = ifaState.answers.filter((a,i)=>a===IFA_BANK[i].correct).length;
+  const canvas = document.getElementById('certCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  // Fondo
+  const grad = ctx.createLinearGradient(0,0,W,H);
+  grad.addColorStop(0,'#0B1220'); grad.addColorStop(1,'#16223A');
+  ctx.fillStyle = grad; ctx.fillRect(0,0,W,H);
+
+  // Marco
+  ctx.strokeStyle = '#22D3C0'; ctx.lineWidth = 4;
+  ctx.strokeRect(30,30,W-60,H-60);
+  ctx.strokeStyle = '#8B5CF6'; ctx.lineWidth = 1.5;
+  ctx.strokeRect(44,44,W-88,H-88);
+
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#8493AD';
+  ctx.font = '16px monospace';
+  ctx.fillText('UCOMPENSAR · DEPARTAMENTO DE CIENCIAS BÁSICAS', W/2, 110);
+
+  ctx.fillStyle = '#E8ECF3';
+  ctx.font = 'bold 40px Georgia, serif';
+  ctx.fillText('Certificado de Logro', W/2, 175);
+
+  ctx.fillStyle = '#8493AD';
+  ctx.font = '17px sans-serif';
+  ctx.fillText('Se otorga el presente certificado a', W/2, 240);
+
+  ctx.fillStyle = '#22D3C0';
+  ctx.font = 'bold 34px Georgia, serif';
+  ctx.fillText(name, W/2, 300);
+
+  ctx.fillStyle = '#E8ECF3';
+  ctx.font = '17px sans-serif';
+  wrapCenterText(ctx, 'por evidenciar competencias de Interpretación, Formulación y Argumentación (IFA)', W/2, 355, 780, 24);
+  wrapCenterText(ctx, 'sobre dominio, rango y límites de funciones multivariadas.', W/2, 385, 780, 24);
+
+  ctx.fillStyle = '#F5A623';
+  ctx.font = 'bold 22px monospace';
+  ctx.fillText(`Resultado: ${correctCount} / 15 aciertos`, W/2, 460);
+
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('es-CO', {year:'numeric', month:'long', day:'numeric'});
+  ctx.fillStyle = '#8493AD';
+  ctx.font = '14px monospace';
+  ctx.fillText(`Fecha de emisión: ${dateStr}`, W/2, 610);
+  ctx.fillText('Cálculo Multivariado — Laboratorio de Dominio, Rango y Límites', W/2, 636);
+
+  document.getElementById('certWrap').style.display = 'block';
+});
+
+function wrapCenterText(ctx, text, x, y, maxWidth, lineHeight){
+  const words = text.split(' ');
+  let line = '', lines = [];
+  words.forEach(w=>{
+    const test = line + w + ' ';
+    if(ctx.measureText(test).width > maxWidth && line){ lines.push(line); line = w+' '; }
+    else line = test;
+  });
+  lines.push(line);
+  lines.forEach((l,i)=> ctx.fillText(l.trim(), x, y + i*lineHeight));
+}
+
+document.getElementById('downloadCertBtn').addEventListener('click', ()=>{
+  const canvas = document.getElementById('certCanvas');
+  const link = document.createElement('a');
+  link.download = 'certificado_dominio_rango_limites.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+});
+
+/* ==================================================================
+   INICIALIZACIÓN
+   ================================================================== */
+renderDemo1(3);
+renderDemo2(1);
+renderQuestion();
+</script>
+</body>
+</html>
